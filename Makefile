@@ -1,3 +1,3 @@
 quiet:
-	gcc -Wall -Wextra -o quiet src/main.c src/lexer.c src/parser.c
+	gcc -Isrc -o quiet src/parser.c src/lexer.c src/main.c src/codegen.c -Wall -Wextra
 

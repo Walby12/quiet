@@ -17,6 +17,7 @@ typedef enum {
 	ARROW,
 	FN,
 	RETURN,
+	EQUALS,
 	STR_END
 } TokenType;
 

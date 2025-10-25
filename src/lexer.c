@@ -69,6 +69,9 @@ void get_next_tok(Lexer *lex) {
 				lex->index++;
 				break;
 			}
+		case '=':
+			lex->cur_tok = EQUALS;
+			break;
 		default:
 			if (isalpha(c)) {
 				char builder[1024];

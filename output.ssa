@@ -1,0 +1,7 @@
+export function w $main() {
+@start
+ 	%x =w copy 12
+    	%t0 =w copy 69
+    	call $putchar(w %t0)
+    	ret 0
+}
