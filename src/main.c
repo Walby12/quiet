@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lexer.h"
+#include "parser.h"
 
 char* read_file(const char* filename) {
     	FILE* f = fopen(filename, "rb");
@@ -25,8 +26,11 @@ int main() {
         	return 1;
     	}
 	Lexer* lex = lexer_init(contents);
+	printf("format ELF64\n");
+	printf("section \".text\" executable\n");
 	get_next_tok(lex);
 	while (lex->cur_tok != STR_END) {
+		parse(lex);
 		get_next_tok(lex);
 	}
     	free(contents);

@@ -15,6 +15,8 @@ typedef enum {
 	OPEN_CURLY,
 	CLOSE_CURLY,
 	ARROW,
+	FN,
+	RETURN,
 	STR_END
 } TokenType;
 
