@@ -11,7 +11,7 @@ int cur_line = 1;
 int cur_col = 0;
 
 Lexer* lexer_init(const char *cont) {
-    Lexer *lex = malloc(sizeof(Lexer));
+	Lexer *lex = malloc(sizeof(Lexer));
     if (lex == NULL) {
         printf("Could not allocate memory\n");
         return NULL;
@@ -100,8 +100,8 @@ void get_next_tok(Lexer *lex) {
 				builder[i++] = c;
 				
 				while (isdigit(lex->cont[lex->index]) && 
-				       lex->cont[lex->index] != '\0' && 
-				       i < (int) sizeof(builder) - 1) {
+				    lex->cont[lex->index] != '\0' && 
+				    i < (int) sizeof(builder) - 1) {
 					builder[i++] = lex->cont[lex->index++];
 					cur_col++;
 				}

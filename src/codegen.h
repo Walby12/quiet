@@ -6,7 +6,7 @@
 typedef struct Variable Variable;
 
 typedef struct CodeGen {
-    FILE *out;
+	FILE *out;
     int temp_counter;
     int label_counter;
 } CodeGen;
@@ -21,4 +21,3 @@ void codegen_end_function(CodeGen *cg);
 void codegen_finish(CodeGen *cg);
 
 #endif
-
