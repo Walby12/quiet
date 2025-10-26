@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
     free(content);
     free(lex);
     
-    // Compile with QBE
     printf("Compiling with QBE...\n");
     int ret = system("qbe output.ssa > output.s");
     if (ret != 0) {

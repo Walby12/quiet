@@ -27,6 +27,10 @@ void codegen_putchar(CodeGen *cg, int value) {
     	cg->temp_counter++;
 }
 
+void codegen_putchar_variable(CodeGen *cg, const char *value) {
+	fprintf(cg->out, "	call $putchar(w %%%s)\n", value);
+}
+
 void codegen_return(CodeGen *cg, int value) {
     	fprintf(cg->out, "    	ret %d\n", value);
 }

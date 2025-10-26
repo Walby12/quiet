@@ -4,21 +4,20 @@
 #include "uthash.h"
 #include "lexer.h"
 
-// Forward declaration to avoid circular include
 typedef struct CodeGen CodeGen;
 
-// ✅ Give the struct a name ("Variable") so forward declarations work properly
 typedef struct Variable {
     char name[256];
     int value;
+    char type[256];
     UT_hash_handle hh;
 } Variable;
 
 extern Variable *symbol_table;
 extern char dest[1024];
-extern char buff[14];
+extern char func_ret[1024];
 
-void add_variable(const char *name, int value);
+void add_variable(const char *name, int value, const char *type);
 int variable_exists(const char *name);
 Variable* get_variable(const char *name);
 void delete_variable(const char *name);

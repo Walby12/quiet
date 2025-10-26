@@ -1,5 +1,5 @@
 fn main() -> int {
-	int x = 12;
-	putchar(69);
+	int x = 69;
+	putchar(x);
 	return 0;
 }

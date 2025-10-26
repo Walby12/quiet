@@ -6,8 +6,10 @@
 
 Variable *symbol_table = NULL;
 char var_dest[1024];
+char func_ret[1024];
+char buff[14];
 
-void add_variable(const char *name, int value) {
+void add_variable(const char *name, int value, const char *type) {
 	Variable *v;
 
 	HASH_FIND_STR(symbol_table, name, v);
@@ -18,6 +20,7 @@ void add_variable(const char *name, int value) {
 	v = malloc(sizeof(Variable));
 	strcpy(v->name, name);
 	v->value = value;
+	strcpy(v->type, type);
 
 	HASH_ADD_STR(symbol_table, name, v);
 }
@@ -48,17 +51,17 @@ int count_variables() {
 }
 
 void print_all_variables() {
-    Variable *v, *tmp;
+	Variable *v, *tmp;
     
-    printf("Variables:\n");
-    printf("%-20s %s\n", "Name", "Value");
-    printf("----------------------------------------\n");
+	printf("Variables:\n");
+	printf("%-20s %s\n", "Name", "Value");
+	printf("----------------------------------------\n");
     
-    HASH_ITER(hh, symbol_table, v, tmp) {
-        printf("%-20s %d\n", v->name, v->value);
-    }
+	HASH_ITER(hh, symbol_table, v, tmp) {
+        	printf("%-20s %d %s\n", v->name, v->value, v->type);
+    	}
     
-    printf("Total: %d variables\n", HASH_COUNT(symbol_table));
+    	printf("Total: %d variables\n", HASH_COUNT(symbol_table));
 }
 
 void cleanup_symbol_table() {
@@ -69,107 +72,123 @@ void cleanup_symbol_table() {
 	}
 }
 
-char buff[14];
-
 void parse(Lexer *lex, CodeGen *cg) {
-    get_next_tok(lex);
+    	get_next_tok(lex);
     
-    if (lex->cur_tok != FN) {
-        printf("ERROR: expected function definition\n");
-        exit(1);
-    }
+	if (lex->cur_tok != FN) {
+        	printf("ERROR: expected function definition\n");
+        	exit(1);
+    	}
     
-    get_next_tok(lex);
-    parse_expect(lex, ID);
+    	get_next_tok(lex);
+    	parse_expect(lex, ID);
     
-    char func_name[256];
-    strcpy(func_name, lex_id);
+    	char func_name[256];
+    	strcpy(func_name, lex_id);
     
-    codegen_start_function(cg, func_name);
+    	codegen_start_function(cg, func_name);
     
-    get_next_tok(lex);
-    parse_expect(lex, OPEN_PAREN);
-    get_next_tok(lex);
-    parse_expect(lex, CLOSE_PAREN);
-    get_next_tok(lex);
-    parse_expect(lex, ARROW);
-    get_next_tok(lex);
-    parse_expect(lex, ID);
+    	get_next_tok(lex);
+    	parse_expect(lex, OPEN_PAREN);
+    	get_next_tok(lex);
+    	parse_expect(lex, CLOSE_PAREN);
+    	get_next_tok(lex);
+    	parse_expect(lex, ARROW);
+    	get_next_tok(lex);
+    	parse_expect(lex, ID);
     
-    if (strcmp(lex_id, "int") != 0) {
-        printf("ERROR: [%d,%d]: unknown return type %s\n", 
-                cur_line, cur_col + 1, lex_id);
-        exit(1);
-    }
+    	if (strcmp(lex_id, "int") != 0) {
+        	printf("ERROR: [%d,%d]: unknown return type %s\n", 
+                cur_line, cur_col, lex_id);
+        	exit(1);
+    	}
+    	strcpy(func_ret, lex_id);
     
-    get_next_tok(lex);
-    parse_expect(lex, OPEN_CURLY);
-    get_next_tok(lex);
+    	get_next_tok(lex);
+    	parse_expect(lex, OPEN_CURLY);
+    	get_next_tok(lex);
     
-    while (lex->cur_tok != CLOSE_CURLY && lex->cur_tok != STR_END) {
-        if (lex->cur_tok == ID) {
-            if (strcmp(lex_id, "putchar") == 0) {
-                get_next_tok(lex);
-                parse_expect(lex, OPEN_PAREN);
-                get_next_tok(lex);
+    	while (lex->cur_tok != CLOSE_CURLY && lex->cur_tok != STR_END) {
+        	if (lex->cur_tok == ID) {
+            	if (strcmp(lex_id, "putchar") == 0) {
+                	get_next_tok(lex);
+                	parse_expect(lex, OPEN_PAREN);
+                	get_next_tok(lex);
                 
-                if (lex->cur_tok == NUM) {
-                    codegen_putchar(cg, lex_num);
-                    get_next_tok(lex);
-                } else {
-                    printf("ERROR: expected number or a variable in putchar\n");
-                    exit(1);
-                }
+                	if (lex->cur_tok == NUM) {
+                    	codegen_putchar(cg, lex_num);
+                    	get_next_tok(lex);
+                	} else if (lex->cur_tok == ID) {
+				if (variable_exists(lex_id)) {
+					Variable *v = get_variable(lex_id);
+					if (strcmp(v->type, "int") == 0) {
+						codegen_putchar_variable(cg, lex_id);
+						get_next_tok(lex);
+					} else {
+						printf("ERROR [%d,%d]: the type of variable %s must be int for putchar\n", cur_line, cur_col, lex_id);
+						exit(1);
+					}
+				} else {
+					printf("ERROR [%d,%d]: unknow variable: %s\n", cur_line, cur_col, lex_id);
+					exit(1);
+				}
+			} else {
+                    		printf("ERROR [%d,%d]: expected number or a variable in putchar\n", cur_line, cur_col);
+                    		exit(1);
+                	}
                 
-                parse_expect(lex, CLOSE_PAREN);
-                get_next_tok(lex);
-                parse_expect(lex, SEMICOLON);
-                get_next_tok(lex);
-            } else if(strcmp(lex_id, "int") == 0) {
-		    get_next_tok(lex);
-		    char *var_name = strcpy(var_dest, lex_id);
-		    parse_expect(lex, ID);
+                	parse_expect(lex, CLOSE_PAREN);
+                	get_next_tok(lex);
+                	parse_expect(lex, SEMICOLON);
+                	get_next_tok(lex);
+            	} else if(strcmp(lex_id, "int") == 0) {
+		    	get_next_tok(lex);
+		    	strcpy(var_dest, lex_id);
+		    	parse_expect(lex, ID);
 		    
-		    get_next_tok(lex);
-		    parse_expect(lex, EQUALS);
+		    	get_next_tok(lex);
+		    	parse_expect(lex, EQUALS);
 
-		    get_next_tok(lex);
-		    parse_expect(lex, NUM);
-		    int val = lex_num;
+		    	get_next_tok(lex);
+		    	parse_expect(lex, NUM);
+		    	int val = lex_num;
 			
-		    get_next_tok(lex);
-		    parse_expect(lex, SEMICOLON);
-		    get_next_tok(lex);
-		    add_variable(var_name, val);
-		    print_all_variables();
-		    codegen_variable(cg, get_variable(var_name));
-	    } else {
-                printf("ERROR: unknown function %s\n", lex_id);
-                exit(1);
-            }
-        } else if (lex->cur_tok == RETURN) {
-            get_next_tok(lex);
-            if (lex->cur_tok == NUM) {
-                codegen_return(cg, lex_num);
-                get_next_tok(lex);
-            } else {
-                codegen_return(cg, 0);
-            }
-            parse_expect(lex, SEMICOLON);
-            get_next_tok(lex);
-        } else {
-            printf("ERROR: unexpected token %s\n", to_string(lex->cur_tok));
-            exit(1);
-        }
-    }
+		    	get_next_tok(lex);
+		    	parse_expect(lex, SEMICOLON);
+		    	get_next_tok(lex);
+		    	add_variable(var_dest, val, "int");
+		    	codegen_variable(cg, get_variable(var_dest));
+	    	} else {
+                	printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
+                	exit(1);
+            	}
+        	} else if (lex->cur_tok == RETURN) {
+            	get_next_tok(lex);
+            	if (lex->cur_tok == NUM && strcmp(func_ret, "int") == 0) {
+		    	codegen_return(cg, lex_num);
+			get_next_tok(lex);
+            	} else if (lex->cur_tok == NUM && strcmp(func_ret, "int") != 0) {
+                	printf("ERROR [%d,%d]: returned an int from a non int returning function\n", cur_line, cur_col);
+			exit(1);
+            	} else if (lex->cur_tok != NUM && strcmp(func_ret, "int") == 0) {
+			printf("ERROR [%d,%d]: returned an non int from an int returning funtion\n", cur_line, cur_col);
+			exit(1);
+		}
+            	parse_expect(lex, SEMICOLON);
+            	get_next_tok(lex);
+        	} else {
+            		printf("ERROR [%d,%d]: unexpected token %s\n", cur_line, cur_col, to_string(lex->cur_tok));
+            		exit(1);
+        	}
+    	}
     
-    parse_expect(lex, CLOSE_CURLY);
-    codegen_end_function(cg);
+    	parse_expect(lex, CLOSE_CURLY);
+    	codegen_end_function(cg);
 }
 
 int parse_expect(Lexer *lex, TokenType t) {
 	if (lex->cur_tok != t) {
-		printf("ERROR [%d,%d]: expected %s but got %s\n", cur_line, cur_col + 1, 
+		printf("ERROR [%d,%d]: expected %s but got %s\n", cur_line, cur_col, 
 				to_string(t), to_string(lex->cur_tok));
 		exit(1);
 	}
