@@ -39,6 +39,10 @@ void codegen_variable(CodeGen *cg, Variable *v) {
 	fprintf(cg->out, "	%%%s =w copy %d\n", v->name, v->value);
 }
 
+void codegen_variable_reassing(CodeGen *cg, Variable *v, int value) {
+	fprintf(cg->out, "	%%%s =w copy %d\n", v->name, value);
+}
+
 void codegen_end_function(CodeGen *cg) {
     fprintf(cg->out, "}\n");
 }

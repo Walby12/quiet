@@ -1,5 +1,6 @@
 export function w $main() {
 @start
+	%x =w copy 65
 	%x =w copy 69
 	call $putchar(w %x)
 	ret 0

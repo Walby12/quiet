@@ -158,15 +158,41 @@ void parse(Lexer *lex, CodeGen *cg) {
 		    	add_variable(var_dest, val, "int");
 		    	codegen_variable(cg, get_variable(var_dest));
 	    	} else {
-                printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
-                exit(1);
-            	}
-        	} else if (lex->cur_tok == RETURN) {
-            	get_next_tok(lex);
-            	if (lex->cur_tok == NUM && strcmp(func_ret, "int") == 0) {
-		    	codegen_return(cg, lex_num);
-				get_next_tok(lex);
-            } else if (lex->cur_tok == NUM && strcmp(func_ret, "int") != 0) {
+				strcpy(var_dest,lex_id);
+				if (!variable_exists(var_dest)) {	
+                	printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
+                	exit(1);
+				} else {
+					get_next_tok(lex);
+					if (lex->cur_tok == EQUALS) {
+						get_next_tok(lex);
+						Variable *v = get_variable(var_dest);
+						if (v == NULL) {
+							printf("ERROR [%d,%d]: variable not inizialized\n", cur_line, cur_col);
+						}
+
+						if (lex->cur_tok == NUM && (strcmp(v->type, "int") == 0)) {
+							int value = lex_num;
+							get_next_tok(lex);
+							parse_expect(lex, SEMICOLON);
+							get_next_tok(lex);
+							codegen_variable_reassing(cg, v, value);
+						} else if (lex->cur_tok == NUM && (strcmp(v->type, "int") != 0)) {
+							printf("ERROR [%d,%d]: tried to assing a %s value to an int variable\n", cur_line, cur_col, v->type);
+							exit(1);
+						} else if (lex->cur_tok != NUM) {
+							printf("ERROR [%d,%d]: unknow variable assingment\n", cur_line, cur_col);
+							exit(1);
+						}
+					}
+				}
+            }
+        } else if (lex->cur_tok == RETURN) {
+            get_next_tok(lex);
+            if (lex->cur_tok == NUM && strcmp(func_ret, "int") == 0) {
+		    codegen_return(cg, lex_num);
+			get_next_tok(lex);
+        	} else if (lex->cur_tok == NUM && strcmp(func_ret, "int") != 0) {
                 printf("ERROR [%d,%d]: returned an int from a non int returning function\n", cur_line, cur_col);
 				exit(1);
             } else if (lex->cur_tok != NUM && strcmp(func_ret, "int") == 0) {
