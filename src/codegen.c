@@ -2,6 +2,7 @@
 #include "parser.h"
 #include <stdlib.h>
 
+int str_index = 0;
 String *head = NULL;
 
 CodeGen* codegen_init(const char *filename) {
@@ -40,8 +41,16 @@ void codegen_variable_int(CodeGen *cg, Variable *v) {
 	fprintf(cg->out, "	%%%s =w copy %d\n", v->name, v->value);
 }
 
-void codegen_variable_reassing(CodeGen *cg, Variable *v, int value) {
+void codegen_variable_str(CodeGen *cg, Variable *v) {
+	fprintf(cg->out, "	%%%s =l copy $%s%d\n", v->name, v->name, str_index);
+}
+
+void codegen_variable_reassign_int(CodeGen *cg, Variable *v, int value) {
 	fprintf(cg->out, "	%%%s =w copy %d\n", v->name, value);
+}
+
+void codegen_variable_reassign_str(CodeGen *cg, Variable *v) {
+	fprintf(cg->out, "	%%%s =l copy $%s%d\n", v->name, v->name, str_index);
 }
 
 void codegen_end_function(CodeGen *cg) {
@@ -57,7 +66,7 @@ void codegen_emit_strings(CodeGen *cg) {
 
     while (current != NULL) {
         Variable *v = current->v;
-        fprintf(cg->out, "data $%s = { b \"%s\", b 0 }\n", v->name, v->value_str);
+        fprintf(cg->out, "data $%s%d = { b \"%s\", b 0 }\n", v->name, str_index, v->value_str);
         current = current->next;
     }
 }

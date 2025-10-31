@@ -3,8 +3,6 @@
 main:
 	pushq %rbp
 	movq %rsp, %rbp
-	movl $69, %edi
-	callq putchar
 	movl $0, %eax
 	leave
 	ret
@@ -12,7 +10,7 @@ main:
 
 .data
 .align 8
-v:
+v0:
 	.ascii "Hello world"
 	.byte 0
 /* end data */

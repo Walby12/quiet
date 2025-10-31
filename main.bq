@@ -1,7 +1,5 @@
 fn main() -> int {
 	str v = "Hello world";
-	int x = 65;
-	x = 69;
-	putchar(x);
+	v = "Wow";
 	return 0;
 }

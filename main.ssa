@@ -1,8 +1,7 @@
 export function w $main() {
 @start
-	%x =w copy 65
-	%x =w copy 69
-	call $putchar(w %x)
+	%v =l copy $v0
+	%v =l copy $v0
 	ret 0
 }
-data $v = { b "Hello world", b 0 }
+data $v0 = { b "Hello world", b 0 }
