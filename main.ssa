@@ -5,3 +5,4 @@ export function w $main() {
 	call $putchar(w %x)
 	ret 0
 }
+data $v = { b "Hello world", b 0 }

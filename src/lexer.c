@@ -6,6 +6,7 @@
 #include <string.h>
 
 char lex_id[1024];
+char lex_str[1024];
 int lex_num;
 int cur_line = 1;
 int cur_col = 0;
@@ -72,15 +73,33 @@ void get_next_tok(Lexer *lex) {
 		case '=':
 			lex->cur_tok = EQUALS;
 			break;
+		case '\"':
+			char builder[1024];
+			int i = 0;
+
+			while (lex->cont[lex->index] != '\0' && lex->cont[lex->index] != '\"' && i < (int) sizeof(builder) - 1) {
+				builder[i++] = lex->cont[lex->index++];
+				cur_col++;
+			}
+    		if (lex->cont[lex->index] == '\"') {
+        		lex->index++; 
+        		cur_col++;
+    		} else {
+				printf("ERROR [%d,%d]: unclosed string: %s", cur_line, cur_col, builder);
+				exit(1);
+    		}
+
+    		builder[i] = '\0';
+			memcpy(lex_str, builder, i + 1);
+    		lex->cur_tok = STRING;
+    		break;
 		default:
 			if (isalpha(c)) {
 				char builder[1024];
 				int i = 0;
 				builder[i++] = c;
 				
-				while (lex->cont[lex->index] != '\0' && 
-				       isalpha(lex->cont[lex->index]) && 
-				       i < (int) sizeof(builder) - 1) {
+				while (lex->cont[lex->index] != '\0' && isalpha(lex->cont[lex->index]) && i < (int) sizeof(builder) - 1) {
 					builder[i++] = lex->cont[lex->index++];
 					cur_col++;
 				}

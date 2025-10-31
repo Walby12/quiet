@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
     }
     
     parse(lex, cg);
-    
     codegen_finish(cg);
     free(content);
     free(lex);

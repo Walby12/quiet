@@ -1,7 +1,8 @@
 #include "codegen.h"
 #include "parser.h"
-
 #include <stdlib.h>
+
+String *head = NULL;
 
 CodeGen* codegen_init(const char *filename) {
 	CodeGen *cg = malloc(sizeof(CodeGen));
@@ -35,7 +36,7 @@ void codegen_return(CodeGen *cg, int value) {
     fprintf(cg->out, "	ret %d\n", value);
 }
 
-void codegen_variable(CodeGen *cg, Variable *v) {
+void codegen_variable_int(CodeGen *cg, Variable *v) {
 	fprintf(cg->out, "	%%%s =w copy %d\n", v->name, v->value);
 }
 
@@ -47,7 +48,65 @@ void codegen_end_function(CodeGen *cg) {
     fprintf(cg->out, "}\n");
 }
 
+void codegen_emit_strings(CodeGen *cg) {
+    String *current = head;
+    
+    if (current == NULL) {
+        return;
+    }
+
+    while (current != NULL) {
+        Variable *v = current->v;
+        fprintf(cg->out, "data $%s = { b \"%s\", b 0 }\n", v->name, v->value_str);
+        current = current->next;
+    }
+}
+
 void codegen_finish(CodeGen *cg) {
+    codegen_emit_strings(cg); 
+    String *current = head;
+    String *next_node;
+    while (current != NULL) {
+        next_node = current->next;
+        free(current);
+        current = next_node;
+    }
+    head = NULL;
+
     fclose(cg->out);
     free(cg);
+}
+
+void append_string(Variable *v) {
+	String *new_str = (String *)malloc(sizeof(String));
+    if (new_str == NULL) {
+        perror("Failed to allocate memory");
+        return;
+    }
+
+    new_str->v = v;
+    new_str->next = NULL;
+
+    if (head == NULL) {
+        head = new_str;
+        return;
+    }
+
+    String *current = head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+    current->next = new_str;
+}
+
+void print_strings() {
+	String *current = head;
+    printf("--- String List ---\n");
+    while (current != NULL) {
+        printf("Variable name: %s, Variable type: %s, Variable value: %s\n", 
+               current->v->name, 
+               current->v->type, 
+               current->v->value_str);
+        current = current->next;
+    }
 }

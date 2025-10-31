@@ -8,8 +8,12 @@ main:
 	movl $0, %eax
 	leave
 	ret
-.type main, @function
-.size main, .-main
 /* end function main */
 
-.section .note.GNU-stack,"",@progbits
+.data
+.align 8
+v:
+	.ascii "Hello world"
+	.byte 0
+/* end data */
+

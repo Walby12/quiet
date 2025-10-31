@@ -9,7 +9,7 @@ char var_dest[1024];
 char func_ret[1024];
 char buff[14];
 
-void add_variable(const char *name, int value, const char *type) {
+void add_variable_int(const char *name, int value, const char *type) {
 	Variable *v;
 
 	HASH_FIND_STR(symbol_table, name, v);
@@ -20,6 +20,22 @@ void add_variable(const char *name, int value, const char *type) {
 	v = malloc(sizeof(Variable));
 	strcpy(v->name, name);
 	v->value = value;
+	strcpy(v->type, type);
+
+	HASH_ADD_STR(symbol_table, name, v);
+}
+
+void add_variable_str(const char *name, const char *value, const char *type) {
+	Variable *v;
+
+	HASH_FIND_STR(symbol_table, name, v);
+	if (v != NULL) {
+		return;
+	}
+
+	v = malloc(sizeof(Variable));
+	strcpy(v->name, name);
+	strcpy(v->value_str, value);
 	strcpy(v->type, type);
 
 	HASH_ADD_STR(symbol_table, name, v);
@@ -140,7 +156,7 @@ void parse(Lexer *lex, CodeGen *cg) {
             	get_next_tok(lex);
                 parse_expect(lex, SEMICOLON);
                 get_next_tok(lex);
-            } else if(strcmp(lex_id, "int") == 0) {
+            } else if (strcmp(lex_id, "int") == 0) {
 		    	get_next_tok(lex);
 		    	strcpy(var_dest, lex_id);
 		    	parse_expect(lex, ID);
@@ -155,9 +171,27 @@ void parse(Lexer *lex, CodeGen *cg) {
 		    	get_next_tok(lex);
 		    	parse_expect(lex, SEMICOLON);
 		    	get_next_tok(lex);
-		    	add_variable(var_dest, val, "int");
-		    	codegen_variable(cg, get_variable(var_dest));
-	    	} else {
+		    	add_variable_int(var_dest, val, "int");
+		    	codegen_variable_int(cg, get_variable(var_dest));
+	    	} else if (strcmp(lex_id, "str") == 0) {
+				get_next_tok(lex);
+				strcpy(var_dest, lex_id);
+				parse_expect(lex, ID);
+
+				get_next_tok(lex);
+				parse_expect(lex, EQUALS);
+
+				get_next_tok(lex);
+				parse_expect(lex, STRING);
+				char *val = lex_str;
+
+				get_next_tok(lex);
+				parse_expect(lex, SEMICOLON);
+				get_next_tok(lex);
+				add_variable_str(var_dest, val, "str");
+				append_string(get_variable(var_dest));
+				print_strings();
+			} else {
 				strcpy(var_dest,lex_id);
 				if (!variable_exists(var_dest)) {	
                 	printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
@@ -247,6 +281,8 @@ char* to_string(TokenType t) {
 			return "=";
 		case STR_END:
 			return "eof";
+		case STRING:
+			return "\"";
 		default:
 			return "unknow token";
 	}

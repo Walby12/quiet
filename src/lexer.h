@@ -2,6 +2,7 @@
 #define LEXER_H
 
 extern char lex_id[1024];
+extern char lex_str[1024];
 extern int lex_num;
 extern int cur_line;
 extern int cur_col;
@@ -18,6 +19,7 @@ typedef enum {
 	FN,
 	RETURN,
 	EQUALS,
+	STRING,
 	STR_END
 } TokenType;
 
