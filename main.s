@@ -10,14 +10,14 @@ main:
 
 .data
 .align 8
-t0:
-	.ascii "Wow"
+v_0:
+	.ascii "Hello world"
 	.byte 0
 /* end data */
 
 .data
 .align 8
-t1:
+v_1:
 	.ascii "Wow"
 	.byte 0
 /* end data */

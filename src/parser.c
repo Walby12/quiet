@@ -175,67 +175,80 @@ void parse(Lexer *lex, CodeGen *cg) {
 		    	codegen_variable_int(cg, get_variable(var_dest));
 				str_index++;
 	    	} else if (strcmp(lex_id, "str") == 0) {
-				get_next_tok(lex);
-				strcpy(var_dest, lex_id);
-				parse_expect(lex, ID);
+                get_next_tok(lex);
+                parse_expect(lex, ID);
+                strcpy(var_dest, lex_id);
 
-				get_next_tok(lex);
-				parse_expect(lex, EQUALS);
+                get_next_tok(lex);
+                parse_expect(lex, EQUALS);
 
-				get_next_tok(lex);
-				parse_expect(lex, STRING);
-				char *val = lex_str;
+                get_next_tok(lex);
+                parse_expect(lex, STRING);
 
-				get_next_tok(lex);
-				parse_expect(lex, SEMICOLON);
-				get_next_tok(lex);
-				add_variable_str(var_dest, val, "str");
-				append_string(get_variable(var_dest), val);
-				codegen_variable_str(cg, get_variable(var_dest));
-			} else {
-				strcpy(var_dest,lex_id);
-				if (!variable_exists(var_dest)) {	
-                	printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
-                	exit(1);
-				} else {
-					get_next_tok(lex);
-					if (lex->cur_tok == EQUALS) {
-						get_next_tok(lex);
-						Variable *v = get_variable(var_dest);
-						if (v == NULL) {
-							printf("ERROR [%d,%d]: variable not inizialized\n", cur_line, cur_col);
-							exit(1);
-						}
+                char val_copy[1024];
+                strncpy(val_copy, lex_str, sizeof(val_copy));
+                val_copy[sizeof(val_copy)-1] = '\0';
 
-						if (lex->cur_tok == NUM && (strcmp(v->type, "int") == 0)) {
-							int value = lex_num;
-							get_next_tok(lex);
-							parse_expect(lex, SEMICOLON);
-							get_next_tok(lex);
-							codegen_variable_reassign_int(cg, v, value);
-						} else if (lex->cur_tok == NUM && (strcmp(v->type, "int") != 0)) {
-							printf("ERROR [%d,%d]: tried to assing an int value to an %s variable\n", cur_line, cur_col, v->type);
-							exit(1);
-						} else if (lex->cur_tok != NUM && strcmp(v->type, "int") == 0) {
-							printf("ERROR [%d,%d]: tried to assign an %s value to a int variable\n", cur_line, cur_col, to_string(lex->cur_tok));
-							exit(1);
-						} else if (lex->cur_tok == STRING && strcmp(v->type, "str") == 0) {
-							char *val = lex_str;
-							get_next_tok(lex);
-							parse_expect(lex, SEMICOLON);
-							get_next_tok(lex);
-							add_variable_str(v->name, val, "str");
-							append_string(v, val);
-							codegen_variable_reassign_str(cg, v);	
-						} else if (lex->cur_tok == STRING && strcmp(v->type, "str") != 0) {
-							printf("ERROR [%d,%d]: tried to assign a string value to an %s variable\n", cur_line, cur_col, v->type);
-							exit(1);
-						} else if (lex->cur_tok != STRING && strcmp(v->type, "str") == 0) {
-							printf("ERROR [%d,%d]: tried to assign an %s value to a string variable\n", cur_line, cur_col, to_string(lex->cur_tok));
-							exit(1);
-						}
-					}
-				}
+                add_variable_str(var_dest, val_copy, "str");
+                Variable *v = get_variable(var_dest);
+                if (v == NULL) {
+                    printf("ERROR: failed to create variable %s\n", var_dest);
+                    exit(1);
+                }
+                append_string(v, val_copy);
+
+                get_next_tok(lex);
+                parse_expect(lex, SEMICOLON);
+                get_next_tok(lex);
+
+                codegen_variable_str(cg, v);
+            } else {
+                strcpy(var_dest,lex_id);
+                if (!variable_exists(var_dest)) {	
+                    printf("ERROR [%d,%d]: unknown operation: %s\n", cur_line, cur_col, lex_id);
+                    exit(1);
+                } else {
+                    get_next_tok(lex);
+                    if (lex->cur_tok == EQUALS) {
+                        get_next_tok(lex);
+                        Variable *v = get_variable(var_dest);
+                        if (v == NULL) {
+                            printf("ERROR [%d,%d]: variable not inizialized\n", cur_line, cur_col);
+                            exit(1);
+                        }
+
+                        if (lex->cur_tok == NUM && (strcmp(v->type, "int") == 0)) {
+                            int value = lex_num;
+                            get_next_tok(lex);
+                            parse_expect(lex, SEMICOLON);
+                            get_next_tok(lex);
+                            codegen_variable_reassign_int(cg, v, value);
+                        } else if (lex->cur_tok == NUM && (strcmp(v->type, "int") != 0)) {
+                            printf("ERROR [%d,%d]: tried to assing an int value to an %s variable\n", cur_line, cur_col, v->type);
+                            exit(1);
+                        } else if (lex->cur_tok != NUM && strcmp(v->type, "int") == 0) {
+                            printf("ERROR [%d,%d]: tried to assign an %s value to a int variable\n", cur_line, cur_col, to_string(lex->cur_tok));
+                            exit(1);
+                        } else if (lex->cur_tok == STRING && strcmp(v->type, "str") == 0) {
+                            char val_copy2[1024];
+                            strncpy(val_copy2, lex_str, sizeof(val_copy2));
+                            val_copy2[sizeof(val_copy2)-1] = '\0';
+                            char *val = val_copy2;
+                            get_next_tok(lex);
+                            parse_expect(lex, SEMICOLON);
+                            get_next_tok(lex);
+                            add_variable_str(v->name, val, "str");
+                            append_string(v, val);
+                            codegen_variable_reassign_str(cg, v);    
+                        } else if (lex->cur_tok == STRING && strcmp(v->type, "str") != 0) {
+                            printf("ERROR [%d,%d]: tried to assign a string value to an %s variable\n", cur_line, cur_col, v->type);
+                            exit(1);
+                        } else if (lex->cur_tok != STRING && strcmp(v->type, "str") == 0) {
+                            printf("ERROR [%d,%d]: tried to assign an %s value to a string variable\n", cur_line, cur_col, to_string(lex->cur_tok));
+                            exit(1);
+                        }
+                    }
+                }
             }
         } else if (lex->cur_tok == RETURN) {
             get_next_tok(lex);
@@ -246,7 +259,7 @@ void parse(Lexer *lex, CodeGen *cg) {
                 printf("ERROR [%d,%d]: returned an int from a non int returning function\n", cur_line, cur_col);
 				exit(1);
             } else if (lex->cur_tok != NUM && strcmp(func_ret, "int") == 0) {
-				printf("ERROR [%d,%d]: returned an non int from an int returning funtion\n", cur_line, cur_col);
+				printf("ERROR [%d,%d]: returned a non int from an int returning funtion\n", cur_line, cur_col);
 				exit(1);
 			}
             parse_expect(lex, SEMICOLON);

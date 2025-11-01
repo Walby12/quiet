@@ -9,8 +9,9 @@ typedef struct CodeGen CodeGen;
 typedef struct Variable {
     char name[256];
     int value;
-	char value_str[1024];
-    char type[256];
+    char value_str[1024];
+    char type[16];
+    char data_label[64];
     UT_hash_handle hh;
 } Variable;
 

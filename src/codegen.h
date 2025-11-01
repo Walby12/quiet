@@ -2,6 +2,7 @@
 #define CODEGEN_H
 
 #include <stdio.h>
+#include "parser.h"
 
 extern int str_index;
 
@@ -14,8 +15,10 @@ typedef struct CodeGen {
 } CodeGen;
 
 typedef struct String {
-	Variable *v;
-	struct String *next;
+    struct Variable *v;
+    char label[64];
+    char value[1024];
+    struct String *next;
 } String;
 
 CodeGen* codegen_init(const char *filename);
