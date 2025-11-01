@@ -42,7 +42,7 @@ void codegen_variable_int(CodeGen *cg, Variable *v) {
 }
 
 void codegen_variable_str(CodeGen *cg, Variable *v) {
-	fprintf(cg->out, "	%%%s =l copy $%s%d\n", v->name, v->name, str_index);
+	fprintf(cg->out, "	%%%s =l copy $t%d\n", v->name, cg->temp_counter);
 }
 
 void codegen_variable_reassign_int(CodeGen *cg, Variable *v, int value) {
@@ -50,7 +50,7 @@ void codegen_variable_reassign_int(CodeGen *cg, Variable *v, int value) {
 }
 
 void codegen_variable_reassign_str(CodeGen *cg, Variable *v) {
-	fprintf(cg->out, "	%%%s =l copy $%s%d\n", v->name, v->name, str_index);
+	fprintf(cg->out, "	%%%s =l copy $t%d\n", v->name, cg->temp_counter + 1);
 }
 
 void codegen_end_function(CodeGen *cg) {
@@ -66,7 +66,7 @@ void codegen_emit_strings(CodeGen *cg) {
 
     while (current != NULL) {
         Variable *v = current->v;
-        fprintf(cg->out, "data $%s%d = { b \"%s\", b 0 }\n", v->name, str_index, v->value_str);
+        fprintf(cg->out, "data $t%d = { b \"%s\", b 0 }\n", cg->temp_counter++, v->value_str);
         current = current->next;
     }
 }
@@ -86,7 +86,7 @@ void codegen_finish(CodeGen *cg) {
     free(cg);
 }
 
-void append_string(Variable *v) {
+void append_string(Variable *v, const char *value) {
 	String *new_str = (String *)malloc(sizeof(String));
     if (new_str == NULL) {
         perror("Failed to allocate memory");
@@ -94,6 +94,8 @@ void append_string(Variable *v) {
     }
 
     new_str->v = v;
+	strcpy(new_str->v->value_str, value);
+	printf("%s\n", new_str->v->value_str);
     new_str->next = NULL;
 
     if (head == NULL) {

@@ -1,7 +1,8 @@
 export function w $main() {
 @start
-	%v =l copy $v0
-	%v =l copy $v0
+	%v =l copy $t0
+	%v =l copy $t1
 	ret 0
 }
-data $v0 = { b "Hello world", b 0 }
+data $t0 = { b "Wow", b 0 }
+data $t1 = { b "Wow", b 0 }

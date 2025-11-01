@@ -30,7 +30,7 @@ void codegen_variable_reassign_str(CodeGen *cg, Variable *v);
 void codegen_end_function(CodeGen *cg);
 void codegen_emit_strings(CodeGen *cg); 
 void codegen_finish(CodeGen *cg);
-void append_string(Variable *v);
+void append_string(Variable *v, const char *value);
 void print_strings();
 
 #endif

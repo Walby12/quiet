@@ -190,7 +190,7 @@ void parse(Lexer *lex, CodeGen *cg) {
 				parse_expect(lex, SEMICOLON);
 				get_next_tok(lex);
 				add_variable_str(var_dest, val, "str");
-				append_string(get_variable(var_dest));
+				append_string(get_variable(var_dest), val);
 				codegen_variable_str(cg, get_variable(var_dest));
 			} else {
 				strcpy(var_dest,lex_id);
@@ -220,9 +220,12 @@ void parse(Lexer *lex, CodeGen *cg) {
 							printf("ERROR [%d,%d]: tried to assign an %s value to a int variable\n", cur_line, cur_col, to_string(lex->cur_tok));
 							exit(1);
 						} else if (lex->cur_tok == STRING && strcmp(v->type, "str") == 0) {
+							char *val = lex_str;
 							get_next_tok(lex);
 							parse_expect(lex, SEMICOLON);
 							get_next_tok(lex);
+							add_variable_str(v->name, val, "str");
+							append_string(v, val);
 							codegen_variable_reassign_str(cg, v);	
 						} else if (lex->cur_tok == STRING && strcmp(v->type, "str") != 0) {
 							printf("ERROR [%d,%d]: tried to assign a string value to an %s variable\n", cur_line, cur_col, v->type);
