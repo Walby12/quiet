@@ -18,6 +18,7 @@ typedef struct Variable {
 extern Variable *symbol_table;
 extern char dest[1024];
 extern char func_ret[1024];
+extern int func_ret_c;
 
 void add_variable_int(const char *name, int value, const char *type);
 void add_variable_str(const char *name, const char *value, const char *type);

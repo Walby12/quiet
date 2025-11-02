@@ -26,33 +26,42 @@ void codegen_start_function(CodeGen *cg, const char *name) {
 }
 
 void codegen_putchar(CodeGen *cg, int value) {
-    fprintf(cg->out, "    %%t%d =w copy %d\n", cg->temp_counter, value);
-    fprintf(cg->out, "    call $putchar(w %%t%d)\n", cg->temp_counter);
+    fprintf(cg->out, "	%%t%d =w copy %d\n", cg->temp_counter, value);
+    fprintf(cg->out, " 	call $putchar(w %%t%d)\n", cg->temp_counter);
     cg->temp_counter++;
 }
 
 void codegen_putchar_variable(CodeGen *cg, const char *value) {
-    fprintf(cg->out, "    call $putchar(w %%%s)\n", value);
+    fprintf(cg->out, "	call $putchar(w %%%s)\n", value);
 }
 
-void codegen_return(CodeGen *cg, int value) {
-    fprintf(cg->out, "    ret %d\n", value);
+void codegen_return_int(CodeGen *cg, int value) {
+    fprintf(cg->out, "	ret %d\n", value);
+}
+
+void codegen_return_str(CodeGen *cg, Variable *v) {
+	fprintf(cg->out, "	%%%s =l copy $%s\n", v->name, v->data_label);
+	fprintf(cg->out, "	ret %%%s\n", v->name);
+}
+
+void codegen_return_void(CodeGen *cg) {
+	fprintf(cg->out, "	ret\n");
 }
 
 void codegen_variable_int(CodeGen *cg, Variable *v) {
-    fprintf(cg->out, "    %%%s =w copy %d\n", v->name, v->value);
+    fprintf(cg->out, "	%%%s =w copy %d\n", v->name, v->value);
 }
 
 void codegen_variable_str(CodeGen *cg, Variable *v) {
-    fprintf(cg->out, "    %%%s =l copy $%s\n", v->name, v->data_label);
+    fprintf(cg->out, "	%%%s =l copy $%s\n", v->name, v->data_label);
 }
 
 void codegen_variable_reassign_int(CodeGen *cg, Variable *v, int value) {
-    fprintf(cg->out, "    %%%s =w copy %d\n", v->name, value);
+    fprintf(cg->out, "	%%%s =w copy %d\n", v->name, value);
 }
 
 void codegen_variable_reassign_str(CodeGen *cg, Variable *v) {
-    fprintf(cg->out, "    %%%s =l copy $%s\n", v->name, v->data_label);
+    fprintf(cg->out, " 	%%%s =l copy $%s\n", v->name, v->data_label);
 }
 
 void codegen_end_function(CodeGen *cg) {

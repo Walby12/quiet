@@ -1,8 +1,0 @@
-export function w $main() {
-@start
-    %v =l copy $v_0
-    %v =l copy $v_1
-    ret 0
-}
-data $v_0 = { b "Hello world", b 0 }
-data $v_1 = { b "Wow", b 0 }

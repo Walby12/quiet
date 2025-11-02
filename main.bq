@@ -1,5 +1,0 @@
-fn main() -> int {
-	str v = "Hello world";
-	v = "Wow";
-	return 0;
-}
