@@ -265,12 +265,9 @@ void parse(Lexer *lex, CodeGen *cg) {
 					func_ret_c  = 1;
 				}
         	} else if (lex->cur_tok == NUM && strcmp(func_ret, "int") != 0) {
-                printf("ERROR [%d,%d]: returned an int from a %s returning function\n", cur_line, cur_col, func_ret);
+                printf("ERROR [%d,%d]: tried to return an int from a %s returning function\n", cur_line, cur_col, func_ret);
 				exit(1);
-            } else if (lex->cur_tok != NUM && strcmp(func_ret, "int") == 0) {
-				printf("ERROR [%d,%d]: returned a non int from an int returning funtion\n", cur_line, cur_col);
-				exit(1);
-			} else if (lex->cur_tok == STRING && strcmp(func_ret, "str") == 0) {
+            }  else if (lex->cur_tok == STRING && strcmp(func_ret, "str") == 0) {
 				char val_copy[1024];
                 strncpy(val_copy, lex_str, sizeof(val_copy));
                 val_copy[sizeof(val_copy)-1] = '\0';
@@ -293,9 +290,6 @@ void parse(Lexer *lex, CodeGen *cg) {
 			} else if (lex->cur_tok == STRING && strcmp(func_ret, "str") != 0) {
 				printf("ERROR [%d,%d]: tried to return a string from an %s returning func\n", cur_line, cur_col, func_ret);
 				exit(1);
-			} else if (lex->cur_tok != STRING && strcmp(func_ret, "str") == 0) {
-				printf("ERROR [%d,%d]: tried to return %s form a str returning func\n", cur_line, cur_col, to_string(lex->cur_tok));
-				exit(1);
 			} else if (lex->cur_tok == SEMICOLON && strcmp(func_ret, "void") == 0) {
 				codegen_return_void(cg);
 				get_next_tok(lex);
@@ -304,13 +298,35 @@ void parse(Lexer *lex, CodeGen *cg) {
 				} else {
 					func_ret_c  = 1;
 				}
-			} else if (lex->cur_tok != SEMICOLON && strcmp(func_ret, "void") == 0) {
-				printf("ERROR [%d,%d]: tried to return %s from a void returning func\n", cur_line, cur_col, to_string(lex->cur_tok));
-				exit(1);
 			} else if (lex->cur_tok == SEMICOLON && strcmp(func_ret, "void") != 0) {
 				printf("ERROR [%d,%d]: tried to return void form an %s returning func\n", cur_line, cur_col, func_ret);
 				exit(1);
-			}
+			} else if (lex->cur_tok == ID ) {
+				if (strcmp(func_ret, "void") == 0) {
+					printf("ERROR [%d,%d]: tried to return a non void from a void returning func\n", cur_line, cur_col);
+					exit(1);
+				}
+				if (variable_exists(lex_id)) {
+					Variable *v = get_variable(lex_id);
+					if (strcmp(v->type, "int") == 0) {
+						codegen_return_int(cg, v->value);
+						get_next_tok(lex);
+
+						if (lex->cur_tok == CLOSE_CURLY) {
+							func_ret_c = 0;
+						} else {
+							func_ret_c  = 1;
+						}
+					} else if (strcmp(v->type, "str") == 0) {
+						codegen_return_str(cg, v);
+						get_next_tok(lex);
+					}
+				} else {
+					printf("ERROR [%d,%d]: variable %s does not exists\n", cur_line, cur_col, lex_id);
+					exit(1);
+				}
+				
+			} 
 			if (strcmp(func_ret, "void") != 0) {
             	parse_expect(lex, SEMICOLON);
 				get_next_tok(lex);

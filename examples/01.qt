@@ -1,5 +1,4 @@
 fn main() -> void {
-	int x = 69;
-	putchar(x);
-	
+	str x = "hello world";
+	return;
 }
