@@ -1,7 +1,0 @@
-export function w $main() {
-@start
-	%test =w copy 151
-	data $fmt = {b "TEST: %d\n", b 0}
-	call $printf(l $fmt, ..., w %test)
-	ret 0
-}
