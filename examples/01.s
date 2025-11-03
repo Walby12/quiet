@@ -3,6 +3,7 @@
 main:
 	pushq %rbp
 	movq %rsp, %rbp
+	movl $0, %eax
 	leave
 	ret
 .type main, @function
@@ -12,7 +13,7 @@ main:
 .data
 .balign 8
 x_0:
-	.ascii "hello world"
+	.ascii "%s"
 	.byte 0
 /* end data */
 

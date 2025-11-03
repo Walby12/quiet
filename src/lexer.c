@@ -78,6 +78,9 @@ void get_next_tok(Lexer *lex) {
 			int i = 0;
 
 			while (lex->cont[lex->index] != '\0' && lex->cont[lex->index] != '\"' && i < (int) sizeof(builder) - 1) {
+				if (builder[i] == '%') {
+					printf("Noice");
+				}
 				builder[i++] = lex->cont[lex->index++];
 				cur_col++;
 			}
@@ -92,6 +95,18 @@ void get_next_tok(Lexer *lex) {
     		builder[i] = '\0';
 			memcpy(lex_str, builder, i + 1);
     		lex->cur_tok = STRING;
+			for (int j = 0; j < (int) sizeof(builder); ++j) {
+				if (builder[j] == '%') {
+					switch (builder[++j]) {
+						case 's':
+							printf("Very noice\n");
+							break;
+						default:
+							printf("ERROR [%d,%d]: unknow string format: %%%c\n", cur_line, cur_col, builder[j]);
+							exit(1);
+					}
+				}
+			}
     		break;
 		default:
 			if (isalpha(c)) {

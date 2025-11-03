@@ -1,4 +1,4 @@
-fn main() -> void {
-	str x = "hello world";
-	return;
+fn main() -> int {
+	str x = "%s";
+	return 0;
 }
