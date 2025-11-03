@@ -64,6 +64,11 @@ void codegen_variable_reassign_str(CodeGen *cg, Variable *v) {
     fprintf(cg->out, " 	%%%s =l copy $%s\n", v->name, v->data_label);
 }
 
+void codegen_printf(CodeGen *cg, Variable *v) {
+	append_string(v, v->value_str);
+	fprintf(cg->out, "	call $printf(l $%s, ...)\n", v->data_label);
+}
+
 void codegen_end_function(CodeGen *cg) {
     fprintf(cg->out, "}\n");
 }

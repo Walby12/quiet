@@ -1,0 +1,6 @@
+export function w $main() {
+@start
+	call $printf(l $fmt_0, ...)
+	ret 0
+}
+data $fmt_0 = { b "Hello world\n", b 0 }

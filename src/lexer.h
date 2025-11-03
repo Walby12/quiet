@@ -3,6 +3,8 @@
 
 extern char lex_id[1024];
 extern char lex_str[1024];
+extern char lex_format[256];
+extern int lex_format_index;
 extern int lex_num;
 extern int cur_line;
 extern int cur_col;
@@ -20,6 +22,7 @@ typedef enum {
 	RETURN,
 	EQUALS,
 	STRING,
+	STRING_FORMAT,
 	STR_END
 } TokenType;
 

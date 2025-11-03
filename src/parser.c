@@ -165,14 +165,20 @@ void parse(Lexer *lex, CodeGen *cg) {
 				parse_expect(lex, OPEN_PAREN);
 				
 				get_next_tok(lex);
-				parse_expect(lex, STRING);
+				if (lex->cur_tok != STRING && lex->cur_tok != STRING_FORMAT) {
+					printf("ERROR [%d,%d]: expected a string in printf\n", cur_line, cur_col);
+					exit(1);
+				}
 
 				get_next_tok(lex);
 				parse_expect(lex, CLOSE_PAREN);
 
 				get_next_tok(lex);
 				parse_expect(lex, SEMICOLON);
-				//codegen_printf(lex, cg, strdup(lex_str));
+				
+				add_variable_str("fmt", strdup(lex_str), "str");
+				Variable *v = get_variable("fmt");
+				codegen_printf(cg, v);
 				get_next_tok(lex);
 			} else if (strcmp(lex_id, "int") == 0) {
 		    	get_next_tok(lex);
