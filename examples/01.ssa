@@ -1,6 +1,0 @@
-export function w $main() {
-@start
-	%x =l copy $x_0
-	ret 0
-}
-data $x_0 = { b "%s", b 0 }
