@@ -4,7 +4,7 @@ A modern programming language inspired by c and rust.
 
 ## Overview
 
-Quiet is a compiled programming language designed for performance. It aims to be as elegant as possible
+Quiet is a compiled programming language designed for performance. It aims to be easy to use and clean to see.
 
 ## Features
 
@@ -15,11 +15,11 @@ Quiet is a compiled programming language designed for performance. It aims to be
 
 ## Quick Start
 
-Create a file called `main.bq`:
+Create a file called `main.qt`:
 
 ```quiet
 fn main() -> int {
-    putchar(69);
+    printf("Hello world\n");
     return 0;
 }
 ```
@@ -27,14 +27,15 @@ fn main() -> int {
 Compile and run:
 
 ```bash
-quiet main.bq
+quiet main.qt
 ./main
 ```
 
 ### Prerequisites
 
-- gcc compiler
+- cc compiler
 - Make
+- Qbe
 
 ## Roadmap
 

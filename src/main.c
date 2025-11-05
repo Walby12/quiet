@@ -68,12 +68,12 @@ int main(int argc, char *argv[]) {
     }
    	
 	char command2[600];
-	snprintf(command2, sizeof(command2), "gcc %s.s -o %s", file_name, file_name);
+	snprintf(command2, sizeof(command2), "cc %s.s -o %s", file_name, file_name);
 
     printf("Assembling and linking...\n");
     ret = system(command2);
     if (ret != 0) {
-        printf("ERROR: GCC linking failed\n");
+        printf("ERROR: CC linking failed\n");
         return 1;
     }
     
