@@ -1,4 +1,4 @@
 fn main() -> int {
-	printf("Hello world\n");
+	printf("Hello %s\n", "from mars");
 	return 0;
 }

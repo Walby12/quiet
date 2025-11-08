@@ -23,6 +23,7 @@ typedef enum {
 	EQUALS,
 	STRING,
 	STRING_FORMAT,
+	COMMA,
 	STR_END
 } TokenType;
 

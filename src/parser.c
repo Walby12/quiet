@@ -161,25 +161,58 @@ void parse(Lexer *lex, CodeGen *cg) {
                 parse_expect(lex, SEMICOLON);
                 get_next_tok(lex);
             } else if (strcmp(lex_id, "printf") == 0) {
+				int cond = 0;
 				get_next_tok(lex);
 				parse_expect(lex, OPEN_PAREN);
 				
 				get_next_tok(lex);
+				if (lex->cur_tok == STRING_FORMAT) {
+					cond = 1;
+				}
 				if (lex->cur_tok != STRING && lex->cur_tok != STRING_FORMAT) {
-					printf("ERROR [%d,%d]: expected a string in printf\n", cur_line, cur_col);
+					printf("ERROR [%d,%d]: expected a string in printf got: %s\n", cur_line, cur_col, to_string(lex->cur_tok));
 					exit(1);
 				}
 
 				get_next_tok(lex);
+				add_variable_str("fmt", strdup(lex_str), "str");
+				Variable *v = get_variable("fmt");
+
+				char *args[1024];
+				int args_i = 0;
+				if (cond) {
+					for (int i = 0; i < lex_format_index; ++i) {
+						if (lex_format[i] == 's') {
+							parse_expect(lex, COMMA);
+							get_next_tok(lex);
+							parse_expect(lex, STRING);
+
+							size_t len = strlen(lex_str) + 1;
+							args[args_i] = malloc(len);
+
+							if (args[args_i] != NULL){
+								strcpy(args[args_i], lex_str);
+								args_i++;
+							} else {
+								printf("ERROR: buy more ram for args\n");
+								exit(1);
+							}
+							get_next_tok(lex);
+						}
+					}
+				}
 				parse_expect(lex, CLOSE_PAREN);
 
 				get_next_tok(lex);
 				parse_expect(lex, SEMICOLON);
 				
-				add_variable_str("fmt", strdup(lex_str), "str");
-				Variable *v = get_variable("fmt");
-				codegen_printf(cg, v);
-				get_next_tok(lex);
+				if (cond == 0) {
+					codegen_printf(cg, v);
+					get_next_tok(lex);
+				} else {
+					codegen_printf_fmt(cg, v, args, args_i);
+					get_next_tok(lex);
+				}
 			} else if (strcmp(lex_id, "int") == 0) {
 		    	get_next_tok(lex);
 		    	strcpy(var_dest, lex_id);
@@ -486,6 +519,8 @@ char* to_string(TokenType t) {
 			return "{";
 		case CLOSE_CURLY:
 			return "}";
+		case COMMA:
+			return ",";
 		case SEMICOLON:
 			return ";";
 		case ARROW:
@@ -500,6 +535,8 @@ char* to_string(TokenType t) {
 			return "eof";
 		case STRING:
 			return "string";
+		case STRING_FORMAT:
+			return "string format";
 		default:
 			return "unknow token";
 	}

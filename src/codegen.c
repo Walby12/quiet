@@ -69,6 +69,20 @@ void codegen_printf(CodeGen *cg, Variable *v) {
 	fprintf(cg->out, "	call $printf(l $%s, ...)\n", v->data_label);
 }
 
+void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i) {
+	for (int j = 0; j < args_i; ++j) {
+		strcpy(v->name, "arg");
+		append_string(v, args[j]);
+	}
+	strcpy(v->name, "fmt");
+	append_string(v, v->value_str);
+	fprintf(cg->out, "	call $printf(l $%s, ...", v->data_label);
+	for (int i = 0; i < args_i; ++i) {
+		fprintf(cg->out, ",l $arg_%d", i);
+	}
+	fprintf(cg->out, ")\n");
+}
+
 void codegen_end_function(CodeGen *cg) {
     fprintf(cg->out, "}\n");
 }

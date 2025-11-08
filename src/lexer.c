@@ -62,6 +62,9 @@ void get_next_tok(Lexer *lex) {
 		case '}':
 			lex->cur_tok = CLOSE_CURLY;
 			break;
+		case ',':
+			lex->cur_tok = COMMA;
+			break;
 		case '-':
 			if (lex->cont[lex->index] != '>') {
 				printf("ERROR [%d,%d]: unknown token: %c\n", cur_line, cur_col, c);
@@ -97,13 +100,12 @@ void get_next_tok(Lexer *lex) {
     		builder[i] = '\0';
 			memcpy(lex_str, builder, i + 1);
     		lex->cur_tok = STRING;
-			for (int j = 0; j < (int) sizeof(lex_str); ++j) {
+			for (int j = 0; j < (int) strlen(lex_str); ++j) {
 				if (lex_str[j] == '%') {
 					switch (lex_str[++j]) {
 						case 's':
 							lex->cur_tok = STRING_FORMAT;
-							lex_format[lex_format_index] = 's';
-							lex_format_index++;
+							lex_format[lex_format_index++] = 's';
 							break;
 						default:
 							printf("ERROR [%d,%d]: unknow string format: %%%c\n", cur_line, cur_col, lex_str[j]);
