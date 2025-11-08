@@ -34,4 +34,3 @@ int parse_expect(Lexer *lex, TokenType t);
 char* to_string(TokenType t);
 
 #endif
-

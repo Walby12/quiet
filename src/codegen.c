@@ -69,18 +69,44 @@ void codegen_printf(CodeGen *cg, Variable *v) {
 	fprintf(cg->out, "	call $printf(l $%s, ...)\n", v->data_label);
 }
 
-void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i) {
-	for (int j = 0; j < args_i; ++j) {
-		strcpy(v->name, "arg");
-		append_string(v, args[j]);
-	}
-	strcpy(v->name, "fmt");
-	append_string(v, v->value_str);
-	fprintf(cg->out, "	call $printf(l $%s, ...", v->data_label);
-	for (int i = 0; i < args_i; ++i) {
-		fprintf(cg->out, ",l $arg_%d", i);
-	}
-	fprintf(cg->out, ")\n");
+void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i, int is_literal[]) {
+    char *arg_labels[args_i]; 
+    
+    for (int j = 0; j < args_i; ++j) {
+        if (is_literal[j]) {
+            char literal_label[64];
+            snprintf(literal_label, sizeof(literal_label), "STR_LIT_%d", cg->temp_counter);
+            cg->temp_counter++;
+            
+            strcpy(v->name, literal_label); 
+            append_string(v, args[j]);      
+            
+            arg_labels[j] = strdup(v->data_label); 
+            
+        } else {
+            arg_labels[j] = args[j];
+        }
+    }
+
+    strcpy(v->name, "fmt");
+    append_string(v, v->value_str); 
+
+    fprintf(cg->out, "	call $printf(l $%s, ...", v->data_label);
+    
+    for (int i = 0; i < args_i; ++i) {
+        if (is_literal[i]) {
+            fprintf(cg->out, ",l $%s", arg_labels[i]);
+        } else {
+            fprintf(cg->out, ",l %%%s", arg_labels[i]); 
+        }
+    }
+    fprintf(cg->out, ")\n");
+
+    for (int i = 0; i < args_i; ++i) {
+        if (is_literal[i]) {
+            free(arg_labels[i]);
+        }
+    }
 }
 
 void codegen_end_function(CodeGen *cg) {

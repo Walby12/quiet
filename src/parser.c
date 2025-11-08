@@ -180,24 +180,51 @@ void parse(Lexer *lex, CodeGen *cg) {
 
 				char *args[1024];
 				int args_i = 0;
+				int is_literal[1024];
 				if (cond) {
 					for (int i = 0; i < lex_format_index; ++i) {
 						if (lex_format[i] == 's') {
 							parse_expect(lex, COMMA);
 							get_next_tok(lex);
-							parse_expect(lex, STRING);
+							if (lex->cur_tok == STRING) {
+								is_literal[i] = 1;
+								size_t len = strlen(lex_str) + 1;
+								args[args_i] = malloc(len);
 
-							size_t len = strlen(lex_str) + 1;
-							args[args_i] = malloc(len);
+								if (args[args_i] != NULL){
+									strcpy(args[args_i], lex_str);
+									args_i++;
+								} else {
+									printf("ERROR: buy more ram for args\n");
+									exit(1);
+								}
+								get_next_tok(lex);
+							} else if (lex->cur_tok == ID) {
+								is_literal[i] = 0;
+								if (variable_exists(lex_id)) {
+									Variable *v = get_variable(lex_id);
 
-							if (args[args_i] != NULL){
-								strcpy(args[args_i], lex_str);
-								args_i++;
-							} else {
-								printf("ERROR: buy more ram for args\n");
-								exit(1);
+									if (strcmp(v->type, "str") != 0) {
+										printf("ERROR [%d,%d]: excpected variable %s to be of type str but got: %s", cur_line, cur_col, v->name, v->type);
+										exit(1);
+									}
+									
+									size_t len = strlen(lex_id) + 1;
+									args[args_i] = malloc(len);
+
+									if (args[args_i] != NULL) {
+										strcpy(args[args_i], lex_id);
+										args_i++;
+									} else {
+										printf("ERROR: buy more ram for args\n");
+										exit(1);
+									}
+									get_next_tok(lex);
+								} else {
+									printf("ERROR [%d,%d]: variable %s does not exist\n", cur_line, cur_col, lex_id);
+									exit(1);
+								}
 							}
-							get_next_tok(lex);
 						}
 					}
 				}
@@ -210,7 +237,10 @@ void parse(Lexer *lex, CodeGen *cg) {
 					codegen_printf(cg, v);
 					get_next_tok(lex);
 				} else {
-					codegen_printf_fmt(cg, v, args, args_i);
+					codegen_printf_fmt(cg, v, args, args_i, is_literal);
+					for (int j = 0; j < args_i; ++j) {
+						free(args[j]);
+					}
 					get_next_tok(lex);
 				}
 			} else if (strcmp(lex_id, "int") == 0) {

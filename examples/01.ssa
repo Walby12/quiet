@@ -1,0 +1,9 @@
+export function w $main() {
+@start
+	%var =l copy $var_0
+	call $printf(l $fmt_2, ...,l $STR_LIT_0_1,l %var)
+	ret 0
+}
+data $var_0 = { b "world", b 0 }
+data $STR_LIT_0_1 = { b "Hello", b 0 }
+data $fmt_2 = { b "%s %s\n", b 0 }
