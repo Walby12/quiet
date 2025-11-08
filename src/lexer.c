@@ -65,16 +65,23 @@ void get_next_tok(Lexer *lex) {
 		case ',':
 			lex->cur_tok = COMMA;
 			break;
+		case '+':
+			lex->cur_tok = PLUS;
+			break;
+		case '*':
+			lex->cur_tok = MULTIPLY;
+			break;
+		case '/':
 		case '-':
-			if (lex->cont[lex->index] != '>') {
-				printf("ERROR [%d,%d]: unknown token: %c\n", cur_line, cur_col, c);
-				exit(1);
-			} else {
+			if (lex->cont[lex->index] == '>') {
 				lex->cur_tok = ARROW;
 				cur_col++;
 				lex->index++;
-				break;
+			} else {
+				lex->cur_tok = MINUS;
 			}
+			break;
+
 		case '=':
 			lex->cur_tok = EQUALS;
 			break;

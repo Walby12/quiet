@@ -29,6 +29,10 @@ int count_variables();
 void print_all_variables();
 void cleanup_symbol_table();
 
+int parse_primary(Lexer *lex, CodeGen *cg);
+int parse_expression(Lexer *lex, CodeGen *cg);
+int parse_term(Lexer *lex, CodeGen *cg);
+int parse_factor(Lexer *lex, CodeGen *cg);
 void parse(Lexer *lex, CodeGen *cg);
 int parse_expect(Lexer *lex, TokenType t);
 char* to_string(TokenType t);

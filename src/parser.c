@@ -305,11 +305,8 @@ void parse(Lexer *lex, CodeGen *cg) {
 		    	parse_expect(lex, EQUALS);
 
 		    	get_next_tok(lex);
-		    	parse_expect(lex, NUM);
-		    	int val = lex_num;
-			
-		    	get_next_tok(lex);
-		    	parse_expect(lex, SEMICOLON);
+                int val = parse_expression(lex, cg);
+                parse_expect(lex, SEMICOLON);
 		    	get_next_tok(lex);
 		    	add_variable_int(var_dest, val, "int");
 		    	codegen_variable_int(cg, get_variable(var_dest));
@@ -357,9 +354,10 @@ void parse(Lexer *lex, CodeGen *cg) {
                             exit(1);
                         }
 
-                        if (lex->cur_tok == NUM && (strcmp(v->type, "int") == 0)) {
-                            int value = lex_num;
-                            get_next_tok(lex);
+                        if ((lex->cur_tok == NUM || lex->cur_tok == OPEN_PAREN || 
+                            (lex->cur_tok == ID && variable_exists(lex_id))) && 
+                            (strcmp(v->type, "int") == 0)) {
+                            int value = parse_expression(lex, cg);
                             parse_expect(lex, SEMICOLON);
                             get_next_tok(lex);
                             codegen_variable_reassign_int(cg, v, value);
@@ -619,6 +617,14 @@ char* to_string(TokenType t) {
 			return "string";
 		case STRING_FORMAT:
 			return "string format";
+		case PLUS:
+			return "+";
+		case MINUS:
+			return "-";
+		case MULTIPLY:
+			return "*";
+		case DIVIDE:
+			return "/";
 		default:
 			return "unknow token";
 	}

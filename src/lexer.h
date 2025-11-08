@@ -24,6 +24,10 @@ typedef enum {
 	STRING,
 	STRING_FORMAT,
 	COMMA,
+	PLUS,       // +
+	MINUS,      // -
+	MULTIPLY,   // *
+	DIVIDE,     // /
 	STR_END
 } TokenType;
 

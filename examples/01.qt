@@ -1,4 +1,3 @@
 fn main() -> void {
-	int num = 69;
-	printf("%s: %d", "Number", num);
+	printf("Hello world\n");
 }
