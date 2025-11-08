@@ -107,6 +107,10 @@ void get_next_tok(Lexer *lex) {
 							lex->cur_tok = STRING_FORMAT;
 							lex_format[lex_format_index++] = 's';
 							break;
+						case 'd':
+							lex->cur_tok = STRING_FORMAT;
+							lex_format[lex_format_index++] = 'd';
+							break;
 						default:
 							printf("ERROR [%d,%d]: unknow string format: %%%c\n", cur_line, cur_col, lex_str[j]);
 							exit(1);

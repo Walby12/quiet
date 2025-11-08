@@ -1,5 +1,4 @@
-fn main() -> int {
-	str var = "world";
-	printf("%s %s\n", "Hello", var);
-	return 0;
+fn main() -> void {
+	int num = 69;
+	printf("%s: %d", "Number", num);
 }

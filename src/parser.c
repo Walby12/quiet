@@ -177,7 +177,7 @@ void parse(Lexer *lex, CodeGen *cg) {
 				get_next_tok(lex);
 				add_variable_str("fmt", strdup(lex_str), "str");
 				Variable *v = get_variable("fmt");
-
+				
 				char *args[1024];
 				int args_i = 0;
 				int is_literal[1024];
@@ -224,6 +224,59 @@ void parse(Lexer *lex, CodeGen *cg) {
 									printf("ERROR [%d,%d]: variable %s does not exist\n", cur_line, cur_col, lex_id);
 									exit(1);
 								}
+							} else {
+								printf("ERROR [%d,%d]: expected a variable or a string in printf but got: %s\n", cur_line, cur_col, to_string(lex->cur_tok));
+								exit(1);
+							}
+						} else if (lex_format[i] == 'd') {
+							parse_expect(lex, COMMA);
+							get_next_tok(lex);
+
+							if (lex->cur_tok == NUM) {
+								is_literal[i] = 2;
+								char str_buff[22];
+								int buffer_size = sizeof(str_buff);
+
+								snprintf(str_buff, buffer_size, "%d", lex_num);
+								size_t len = strlen(str_buff) + 1;
+								args[args_i] = malloc(len);
+
+								if (args[args_i] != NULL){
+									strcpy(args[args_i], str_buff);
+									args_i++;
+								} else {
+									printf("ERROR: buy more ram for args\n");
+									exit(1);
+								}
+								get_next_tok(lex);
+							} else if (lex->cur_tok == ID) {
+								if (variable_exists(lex_id)) {
+									is_literal[i] = 3; 
+									Variable *v = get_variable(lex_id);
+
+									if (strcmp(v->type, "int") != 0) {
+										printf("ERROR [%d,%d]: expected variable %s to be of type int but got: %s", cur_line, cur_col, v->name, v->type);
+										exit(1);
+									}
+
+									size_t len = strlen(lex_id) + 1;
+									args[args_i] = malloc(len);
+
+									if (args[args_i] != NULL) {
+										strcpy(args[args_i], lex_id);
+										args_i++;
+									} else {
+										printf("ERROR: buy more ram for args\n");
+										exit(1);
+									}
+									get_next_tok(lex);
+								} else {
+									printf("ERROR [%d,%d]: variable: %s does not exist\n", cur_line, cur_col, lex_id);
+									exit(1);
+								}
+							} else {
+								printf("ERROR [%d,%d]: expected a variable or an int in printf but got: %s\n", cur_line, cur_col, to_string(lex->cur_tok));
+								exit(1);
 							}
 						}
 					}
@@ -539,8 +592,7 @@ char* to_string(TokenType t) {
 		case ID:
 			return lex_id;
 		case NUM:
-			sprintf(buff, "%d", lex_num);
-			return buff;
+			return "int";	
 		case OPEN_PAREN:
 			return "(";
 		case CLOSE_PAREN:

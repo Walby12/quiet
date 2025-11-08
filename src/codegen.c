@@ -73,7 +73,7 @@ void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i, int 
     char *arg_labels[args_i]; 
     
     for (int j = 0; j < args_i; ++j) {
-        if (is_literal[j]) {
+        if (is_literal[j] == 1) {
             char literal_label[64];
             snprintf(literal_label, sizeof(literal_label), "STR_LIT_%d", cg->temp_counter);
             cg->temp_counter++;
@@ -90,20 +90,24 @@ void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i, int 
 
     strcpy(v->name, "fmt");
     append_string(v, v->value_str); 
-
+	
     fprintf(cg->out, "	call $printf(l $%s, ...", v->data_label);
     
     for (int i = 0; i < args_i; ++i) {
-        if (is_literal[i]) {
+        if (is_literal[i] == 1) {
             fprintf(cg->out, ",l $%s", arg_labels[i]);
-        } else {
+        } else if (is_literal[i] == 2) {
+			fprintf(cg->out, ",w %d", atoi(args[i]));
+		} else if(is_literal[i] == 3) {
+			fprintf(cg->out, ",w %%%s", arg_labels[i]);
+		} else {
             fprintf(cg->out, ",l %%%s", arg_labels[i]); 
         }
     }
     fprintf(cg->out, ")\n");
 
     for (int i = 0; i < args_i; ++i) {
-        if (is_literal[i]) {
+        if (is_literal[i] == 1) {
             free(arg_labels[i]);
         }
     }
