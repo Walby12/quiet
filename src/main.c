@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
     codegen_finish(cg);
     free(content);
     free(lex);
+	free(func_names);
     
 	char command1[600];
 	snprintf(command1, sizeof(command1), "qbe %s.ssa > %s.s", file_name, file_name);
