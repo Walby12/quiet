@@ -34,6 +34,7 @@ void codegen_variable_reassign_int(CodeGen *cg, Variable *v, int value);
 void codegen_variable_reassign_str(CodeGen *cg, Variable *v);
 void codegen_printf(CodeGen *cg, Variable *v);
 void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i, int is_literal[]);
+void codegen_function_call(CodeGen *cg, const char *func_name);
 void codegen_end_function(CodeGen *cg);
 void codegen_emit_strings(CodeGen *cg); 
 void codegen_finish(CodeGen *cg);

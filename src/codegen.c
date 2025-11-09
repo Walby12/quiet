@@ -113,6 +113,10 @@ void codegen_printf_fmt(CodeGen *cg, Variable *v, char *args[], int args_i, int 
     }
 }
 
+void codegen_function_call(CodeGen *cg, const char *func_name) {
+	fprintf(cg->out, "	call $%s()\n", func_name);
+}
+
 void codegen_end_function(CodeGen *cg) {
     fprintf(cg->out, "}\n");
 }
